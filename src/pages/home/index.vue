@@ -3,6 +3,7 @@
     <NavBar />
     <h1>首页</h1>
     <p>欢迎来到电商商城首页！</p>
+    <Carousel />
     <div class="product-list">
       <ProductCard
         v-for="(imgSrc, i) in productImages"
@@ -18,6 +19,7 @@
 <script setup lang="ts">
 import NavBar from '@/components/NavBar.vue';
 import ProductCard from '@/components/ProductCard.vue';
+import Carousel from '@/components/Carousel.vue';
 
 const productImages = Array.from({ length: 20 }, (_, i) =>
   new URL(`../../assets/images/p${i + 1}.png`, import.meta.url).href

@@ -31,3 +31,7 @@ npm run dev
 ```sh
 npm run build
 ```
+
+
+![首页照片显示](./res/r1.png)
+

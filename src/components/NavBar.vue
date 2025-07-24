@@ -13,6 +13,9 @@
 
 <style scoped>
 .nav-bar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -23,6 +26,12 @@
   padding: 1rem 2.5rem;
   margin-bottom: 2rem;
   margin-top: 1.5rem;
+  transition: box-shadow 0.2s, background 0.2s;
+}
+
+.nav-bar:hover, .nav-bar:focus-within {
+  box-shadow: 0 4px 16px rgba(64,158,255,0.15);
+  background: #f8faff;
 }
 
 .nav-link {
