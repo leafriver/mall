@@ -79,15 +79,32 @@ const canRegister = computed(() =>
   !!password2.value
 );
 
+function generateUserId() {
+  return Math.floor(1000000000 + Math.random() * 9000000000).toString();
+}
+function generateNickname(userId: string) {
+  return `用户_${userId}`;
+}
+
 async function onRegister() {
   msg.value = '';
   if (!canRegister.value) return;
+  const userId = generateUserId();
+  const nickname = generateNickname(userId);
+  const payload = {
+    userId,
+    nickname,
+    username: email.value,
+    password: password.value
+  };
+  console.log('注册请求参数:', payload);
   const res = await fetch('/api/users/register', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username: email.value, password: password.value })
+    body: JSON.stringify(payload)
   });
   const data = await res.json();
+  console.log('注册响应:', data);
   if (data.code === 0) {
     msg.value = '注册成功，正在跳转...';
     setTimeout(() => {
