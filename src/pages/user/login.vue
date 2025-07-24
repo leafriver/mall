@@ -1,21 +1,23 @@
 <template>
-  <div class="login-page">
-    <h2>用户登录</h2>
-    <form @submit.prevent="onLogin">
-      <div class="form-item">
-        <label>用户名：</label>
-        <input v-model="username" required />
+  <div class="login-bg">
+    <div class="login-page">
+      <h2>用户登录</h2>
+      <form @submit.prevent="onLogin">
+        <div class="form-item">
+          <label>用户名：</label>
+          <input v-model="username" required />
+        </div>
+        <div class="form-item">
+          <label>密码：</label>
+          <input v-model="password" type="password" required />
+        </div>
+        <button type="submit">登录</button>
+      </form>
+      <div class="switch-tip">
+        没有账号？<a href="/src/pages/user/register.html">去注册</a>
       </div>
-      <div class="form-item">
-        <label>密码：</label>
-        <input v-model="password" type="password" required />
-      </div>
-      <button type="submit">登录</button>
-    </form>
-    <div class="switch-tip">
-      没有账号？<a href="/src/pages/user/register.html">去注册</a>
+      <div v-if="msg" class="msg">{{ msg }}</div>
     </div>
-    <div v-if="msg" class="msg">{{ msg }}</div>
   </div>
 </template>
 
@@ -44,6 +46,13 @@ async function onLogin() {
 </script>
 
 <style scoped>
+.login-bg {
+  min-height: 100vh;
+  background: #eaf4fb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .login-page {
   max-width: 350px;
   margin: 4rem auto;

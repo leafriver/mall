@@ -1,37 +1,91 @@
 <template>
-  <div class="register-page">
-    <h2>用户注册</h2>
-    <form @submit.prevent="onRegister">
-      <div class="form-item">
-        <label>用户名：</label>
-        <input v-model="username" required />
+  <div class="register-bg">
+    <div class="register-page">
+      <h2>用户注册</h2>
+      <form @submit.prevent="onRegister">
+        <div class="form-item">
+          <label>邮箱：</label>
+          <input v-model="email" required @input="validateEmail" />
+          <div v-if="email && !isEmailValid" class="err">请输入有效的邮箱地址</div>
+        </div>
+        <div class="form-item">
+          <label>密码：</label>
+          <input v-model="password" type="password" required @input="checkPasswordStrength" />
+          <div class="pwd-strength-bars" v-if="password">
+            <div class="bar" :class="{ active: strength >= 1 }"></div>
+            <div class="bar" :class="{ active: strength >= 2 }"></div>
+            <div class="bar" :class="{ active: strength >= 3 }"></div>
+            <span class="strength-label">{{ strengthLabel }}</span>
+          </div>
+          <div v-if="password && !isPwdLengthValid" class="err">密码长度需8-20位</div>
+        </div>
+        <div class="form-item">
+          <label>确认密码：</label>
+          <input v-model="password2" type="password" required />
+          <div v-if="password2 && password !== password2" class="err">两次密码输入不一致</div>
+        </div>
+        <button type="submit" :disabled="!canRegister">注册</button>
+      </form>
+      <div class="switch-tip">
+        已有账号？<a href="/src/pages/user/login.html">去登录</a>
       </div>
-      <div class="form-item">
-        <label>密码：</label>
-        <input v-model="password" type="password" required />
-      </div>
-      <button type="submit">注册</button>
-    </form>
-    <div class="switch-tip">
-      已有账号？<a href="/src/pages/user/login.html">去登录</a>
+      <div v-if="msg" class="msg">{{ msg }}</div>
     </div>
-    <div v-if="msg" class="msg">{{ msg }}</div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
-const username = ref('');
+const email = ref('');
 const password = ref('');
+const password2 = ref('');
 const msg = ref('');
+const isEmailValid = ref(true);
+const isPwdLengthValid = ref(true);
+const strength = ref(0);
+const strengthLabel = ref('');
+
+function validateEmail() {
+  isEmailValid.value = /^[\w.-]+@[\w.-]+\.[a-zA-Z]{2,}$/.test(email.value);
+}
+
+function checkPasswordStrength() {
+  const pwd = password.value;
+  let s = 0;
+  if (pwd.length >= 8 && pwd.length <= 20) {
+    isPwdLengthValid.value = true;
+    if (/[a-z]/.test(pwd)) s++;
+    if (/[A-Z]/.test(pwd)) s++;
+    if (/\d/.test(pwd)) s++;
+    if (/[^a-zA-Z\d]/.test(pwd)) s++;
+  } else {
+    isPwdLengthValid.value = false;
+  }
+  strength.value = s;
+  if (!pwd) strengthLabel.value = '';
+  else if (s <= 1) strengthLabel.value = '弱';
+  else if (s === 2) strengthLabel.value = '中';
+  else if (s >= 3) strengthLabel.value = '强';
+}
+
+const canRegister = computed(() =>
+  isEmailValid.value &&
+  isPwdLengthValid.value &&
+  strength.value >= 2 &&
+  password.value === password2.value &&
+  !!email.value &&
+  !!password.value &&
+  !!password2.value
+);
 
 async function onRegister() {
   msg.value = '';
+  if (!canRegister.value) return;
   const res = await fetch('/api/users/register', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username: username.value, password: password.value })
+    body: JSON.stringify({ username: email.value, password: password.value })
   });
   const data = await res.json();
   if (data.code === 0) {
@@ -46,6 +100,13 @@ async function onRegister() {
 </script>
 
 <style scoped>
+.register-bg {
+  min-height: 100vh;
+  background: #eaf4fb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .register-page {
   max-width: 350px;
   margin: 4rem auto;
@@ -79,9 +140,12 @@ button {
   font-size: 1.1rem;
   cursor: pointer;
   margin-top: 0.5rem;
+  opacity: 1;
+  transition: opacity 0.2s;
 }
-button:hover {
-  background: #3076c9;
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 .switch-tip {
   margin-top: 1.2rem;
@@ -97,5 +161,31 @@ button:hover {
   color: #e74c3c;
   margin-top: 1rem;
   text-align: center;
+}
+.err {
+  color: #e74c3c;
+  font-size: 0.95rem;
+  margin-top: 0.2rem;
+}
+.pwd-strength-bars {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.3rem 0 0.2rem 0;
+}
+.pwd-strength-bars .bar {
+  width: 32px;
+  height: 8px;
+  border-radius: 4px;
+  background: #eee;
+  transition: background 0.2s;
+}
+.pwd-strength-bars .bar.active:nth-child(1) { background: #e74c3c; }
+.pwd-strength-bars .bar.active:nth-child(2) { background: #f1c40f; }
+.pwd-strength-bars .bar.active:nth-child(3) { background: #2ecc71; }
+.strength-label {
+  font-size: 0.95rem;
+  color: #888;
+  margin-left: 0.7rem;
 }
 </style> 
