@@ -44,4 +44,65 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// 获取所有用户（支持按 nickname/username 查询）
+router.get('/', async (req, res) => {
+  const { search } = req.query;
+  try {
+    let sql = 'SELECT id, nickname, username FROM users';
+    let params = [];
+    if (search) {
+      sql += ' WHERE nickname LIKE ? OR username LIKE ?';
+      params = [`%${search}%`, `%${search}%`];
+    }
+    const [rows] = await db.query(sql, params);
+    res.json({ code: 0, data: rows });
+  } catch (err) {
+    res.status(500).json({ code: 1, msg: '获取用户失败', error: err.message });
+  }
+});
+
+// 添加用户
+router.post('/', async (req, res) => {
+  const { id, nickname, username, password } = req.body;
+  if (!id || !nickname || !username || !password) return res.status(400).json({ code: 1, msg: '信息不全' });
+  try {
+    await db.query('INSERT INTO users (id, nickname, username, password) VALUES (?, ?, ?, ?)', [id, nickname, username, password]);
+    res.json({ code: 0, msg: '添加成功' });
+  } catch (err) {
+    res.status(500).json({ code: 1, msg: '添加失败', error: err.message });
+  }
+});
+
+// 修改用户
+router.put('/:id', async (req, res) => {
+  const { id } = req.params;
+  const { nickname, username, password } = req.body;
+  if (!nickname || !username) return res.status(400).json({ code: 1, msg: '信息不全' });
+  try {
+    let sql = 'UPDATE users SET nickname=?, username=?';
+    let params = [nickname, username];
+    if (password) {
+      sql += ', password=?';
+      params.push(password);
+    }
+    sql += ' WHERE id=?';
+    params.push(id);
+    await db.query(sql, params);
+    res.json({ code: 0, msg: '修改成功' });
+  } catch (err) {
+    res.status(500).json({ code: 1, msg: '修改失败', error: err.message });
+  }
+});
+
+// 删除用户
+router.delete('/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await db.query('DELETE FROM users WHERE id=?', [id]);
+    res.json({ code: 0, msg: '删除成功' });
+  } catch (err) {
+    res.status(500).json({ code: 1, msg: '删除失败', error: err.message });
+  }
+});
+
 module.exports = router; 

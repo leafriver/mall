@@ -18,13 +18,10 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        main: fileURLToPath(new URL('./index.html', import.meta.url)),
-        home: fileURLToPath(new URL('./home.html', import.meta.url)),
-        product: fileURLToPath(new URL('./product.html', import.meta.url)),
-        cart: fileURLToPath(new URL('./cart.html', import.meta.url)),
-        user: fileURLToPath(new URL('./user.html', import.meta.url)),
-      }
-    }
+        main: 'index.html',
+        admin: 'admin.html',
+      },
+    },
   },
   server: {
     proxy: {
